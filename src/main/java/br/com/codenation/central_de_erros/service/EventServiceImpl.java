@@ -3,18 +3,22 @@ package br.com.codenation.central_de_erros.service;
 import br.com.codenation.central_de_erros.entity.Event;
 import br.com.codenation.central_de_erros.repository.EventRepository;
 import br.com.codenation.central_de_erros.service.interfaces.EventService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class EventServiceImpl implements EventService {
-    @Autowired
-    private EventRepository repository;
+
+    private final EventRepository repository;
 
     @Override
     public Event save(Event object) {
+        object.setCreatedAt(LocalDateTime.now());
         return repository.save(object);
     }
 
@@ -22,6 +26,9 @@ public class EventServiceImpl implements EventService {
     public Optional<Event> findById(Long id) {
         return repository.findById(id);
     }
+
+    @Override
+    public List<Event> findAll() { return repository.findAll(); }
 
 
 }

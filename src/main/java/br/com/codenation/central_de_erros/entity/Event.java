@@ -1,5 +1,6 @@
 package br.com.codenation.central_de_erros.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -10,20 +11,18 @@ import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.time.LocalDateTime;
 
 @Entity
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
+@Table(name="events")
 public class Event {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    private Long Id;
-
-    @ManyToOne
-    @NotNull
-    private User user;
+    private Long id;
 
     @NotNull
     private ErrorTypes errorType;
@@ -43,14 +42,14 @@ public class Event {
     @Size(max = 100)
     private String origin;
 
-    @NotNull
-    @NotBlank
-    @Size(max = 100)
-    private String dateTime;
+    @Column
+    private LocalDateTime dateTime;
 
     @NotNull
     private Long repeated;
 
+    @Column
     @CreatedDate
-    protected String createdAt;
+    @JsonIgnore
+    protected LocalDateTime createdAt;
 }
