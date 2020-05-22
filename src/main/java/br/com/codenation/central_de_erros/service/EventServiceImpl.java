@@ -4,6 +4,8 @@ import br.com.codenation.central_de_erros.entity.Event;
 import br.com.codenation.central_de_erros.repository.EventRepository;
 import br.com.codenation.central_de_erros.service.interfaces.EventService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -28,7 +30,9 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public List<Event> findAll() { return repository.findAll(); }
+    public List<Event> findAll(Pageable pageable) { return repository.findAll(pageable).getContent(); }
 
+    @Override
+    public void delete(Long id) { repository.deleteById(id); }
 
 }
