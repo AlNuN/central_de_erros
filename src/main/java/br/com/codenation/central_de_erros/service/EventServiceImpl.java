@@ -9,7 +9,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -30,7 +29,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public List<Event> findAll(Pageable pageable) { return repository.findAll(pageable).getContent(); }
+    public Page<Event> findAll(Pageable pageable) { return repository.findAll(pageable); }
 
     @Override
     public void delete(Long id) { repository.deleteById(id); }

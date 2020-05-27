@@ -1,23 +1,23 @@
 package br.com.codenation.central_de_erros.controller;
 
-import br.com.codenation.central_de_erros.assembler.EventResourceAssembler;
+import br.com.codenation.central_de_erros.assembler.EventResourceMapper;
 import br.com.codenation.central_de_erros.entity.Event;
 import br.com.codenation.central_de_erros.exception.EventNotFoundException;
+import br.com.codenation.central_de_erros.resources.EventResource;
 import br.com.codenation.central_de_erros.service.interfaces.EventService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PagedResourcesAssembler;
+import org.springframework.hateoas.Link;
 import org.springframework.hateoas.PagedResources;
-import org.springframework.hateoas.Resource;
-import org.springframework.hateoas.Resources;
+import org.springframework.hateoas.ResourceAssembler;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import static org.springframework.hateoas.mvc.ControllerLinkBuilder.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -25,34 +25,34 @@ import static org.springframework.hateoas.mvc.ControllerLinkBuilder.*;
 public class EventController {
 
     private final EventService eventService;
-    private final EventResourceAssembler eventAssembler;
+    private final ResourceAssembler<Event, EventResource> eventResourceAssembler;
 
     @GetMapping
-    public ResponseEntity<Resources<Resource<Event>>> all(Pageable pageable) {
-        List<Resource<Event>> events = eventService.findAll(pageable).stream()
-                .map(eventAssembler::toResource)
-                .collect(Collectors.toList());
-        return ResponseEntity.ok( new Resources<>(events,
-                linkTo(methodOn(EventController.class).all(pageable)).withSelfRel()));
+    public ResponseEntity<PagedResources<EventResource>> all(Pageable pageable,
+                                                             PagedResourcesAssembler<Event> pagedResourceAssembler) {
+        Page<Event> events = eventService.findAll(pageable);
+        Link selfLink = new Link(ServletUriComponentsBuilder.fromCurrentRequest().build().toUriString());
+        PagedResources<EventResource> result = pagedResourceAssembler.toResource(events, eventResourceAssembler, selfLink);
+        return ResponseEntity.ok(result);
     }
 
     @GetMapping("{id}")
-    public ResponseEntity<Resource<Event>> one (@PathVariable Long id) {
+    public ResponseEntity<EventResource> one (@PathVariable Long id) {
         Event event = eventService.findById(id)
                 .orElseThrow(()-> new EventNotFoundException(id));
-        return ResponseEntity.ok(eventAssembler.toResource(event));
+        return ResponseEntity.ok(EventResourceMapper.INSTANCE.map(event));
 
     }
 
     @PostMapping
-    public ResponseEntity<Resource<Event>> newEvent(@RequestBody Event newEvent)
+    public ResponseEntity<EventResource> newEvent(@RequestBody Event newEvent)
                                                 throws URISyntaxException {
-            Resource<Event> resource = eventAssembler.toResource(eventService.save(newEvent));
+            EventResource resource = EventResourceMapper.INSTANCE.map(eventService.save(newEvent));
             return ResponseEntity.created(new URI(resource.getId().expand().getHref())).body(resource);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Resource<Event>> change(@RequestBody Event newEvent,
+    public ResponseEntity<EventResource> change(@RequestBody Event newEvent,
             @PathVariable Long id) throws URISyntaxException {
         Event updatedEvent = eventService.findById(id)
                 .map(event -> {
@@ -69,7 +69,7 @@ public class EventController {
                     return eventService.save(newEvent);
                 });
 
-        Resource<Event> resource = eventAssembler.toResource(updatedEvent);
+        EventResource resource = EventResourceMapper.INSTANCE.map(updatedEvent);
         return ResponseEntity.created(new URI(resource.getId().expand().getHref())).body(resource);
     }
 
