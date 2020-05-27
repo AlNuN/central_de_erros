@@ -34,7 +34,7 @@ public class Event {
 
     @NotNull
     @NotBlank
-    @Size(max = 100)
+    @Size(max = 255)
     private String log;
 
     @NotNull
