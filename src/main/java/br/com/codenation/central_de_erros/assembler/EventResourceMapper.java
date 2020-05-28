@@ -14,12 +14,12 @@ public interface EventResourceMapper extends ResourceMapper<Event, EventResource
     EventResourceMapper INSTANCE = Mappers.getMapper(EventResourceMapper.class);
 
     @Mappings({
-            @Mapping(source="id", target = "eventId"),
-            @Mapping(source="errorType", target = "errorType"),
-            @Mapping(source="description", target = "description"),
-            @Mapping(source="origin", target = "origin"),
-            @Mapping(source="dateTime", target = "dateTime"),
-            @Mapping(source="repeated", target = "repeated")
+            @Mapping(source="id", target= "eventId"),
+            @Mapping(source="level", target= "level"),
+            @Mapping(source="description", target= "description"),
+            @Mapping(source="origin", target= "origin"),
+            @Mapping(source="dateTime", target= "dateTime", dateFormat= "yyyy-MM-dd HH:mm"),
+            @Mapping(source="repeated", target= "repeated")
     })
     EventResource map(Event event);
 

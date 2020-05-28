@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
-public enum ErrorTypes {
+public enum Level {
     WARNING("W"), ERROR("E"), INFO("I");
 
     private String code;

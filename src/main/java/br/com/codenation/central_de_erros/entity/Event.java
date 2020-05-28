@@ -1,5 +1,6 @@
 package br.com.codenation.central_de_erros.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -27,7 +28,7 @@ public class Event implements Identifiable<Long>, Serializable {
     private Long id;
 
     @NotNull
-    private ErrorTypes errorType;
+    private Level level;
 
     @NotNull
     @NotBlank
@@ -45,6 +46,7 @@ public class Event implements Identifiable<Long>, Serializable {
     private String origin;
 
     @Column
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
     private LocalDateTime dateTime;
 
     @NotNull
