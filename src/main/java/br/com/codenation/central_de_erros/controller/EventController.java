@@ -1,5 +1,6 @@
 package br.com.codenation.central_de_erros.controller;
 
+import br.com.codenation.central_de_erros.assembler.EventMapper;
 import br.com.codenation.central_de_erros.assembler.EventResourceLogMapper;
 import br.com.codenation.central_de_erros.entity.LevelConverter;
 import br.com.codenation.central_de_erros.entity.Event;
@@ -18,9 +19,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import javax.validation.Valid;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.time.LocalDateTime;
 import java.util.Optional;
 
 @RestController
@@ -31,6 +32,7 @@ public class EventController {
     private final EventServiceInterface eventService;
     private final ResourceAssembler<Event, EventResource> eventResourceAssembler;
     private final EventResourceLogMapper eventResourceLogMapper;
+    private final EventMapper eventMapper;
 
     @GetMapping
     public ResponseEntity<PagedResources<EventResource>> all(@RequestParam Optional<String> level,
@@ -61,29 +63,21 @@ public class EventController {
         Event event = eventService.findById(id)
                 .orElseThrow(()-> new EventNotFoundException(id));
         return ResponseEntity.ok(eventResourceLogMapper.map(event));
-
     }
 
     @PostMapping
-    public ResponseEntity<EventResourceWithLog> newEvent(@RequestBody Event newEvent)
+    public ResponseEntity<EventResourceWithLog> newEvent(@Valid @RequestBody Event newEvent)
                                                 throws URISyntaxException {
             EventResourceWithLog resource = eventResourceLogMapper.map(eventService.save(newEvent));
             return ResponseEntity.created(new URI(resource.getId().expand().getHref())).body(resource);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<EventResourceWithLog> change(@RequestBody Event newEvent,
+    public ResponseEntity<EventResourceWithLog> change(@Valid @RequestBody Event newEvent,
             @PathVariable Long id) throws URISyntaxException {
+
         Event updatedEvent = eventService.findById(id)
-                .map(event -> {
-                    event.setDateTime(newEvent.getDateTime());
-                    event.setLevel(newEvent.getLevel());
-                    event.setLog(newEvent.getLog());
-                    event.setDescription(newEvent.getDescription());
-                    event.setOrigin(newEvent.getOrigin());
-                    event.setRepeated(newEvent.getRepeated());
-                    return eventService.save(event);
-                })
+                .map(event -> eventService.save(eventMapper.map(event, newEvent)))
                 .orElseGet(() -> {
                     newEvent.setId(id);
                     return eventService.save(newEvent);
@@ -98,7 +92,7 @@ public class EventController {
         eventService.findById(id)
                 .orElseThrow(() -> new EventNotFoundException(id));
         eventService.delete(id);
-        return ResponseEntity.ok("Event with id: " + id + " removed with success");
+        return ResponseEntity.ok("Event with id " + id + " removed with success");
     }
 
 }
