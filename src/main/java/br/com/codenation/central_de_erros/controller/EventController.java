@@ -2,9 +2,11 @@ package br.com.codenation.central_de_erros.controller;
 
 import br.com.codenation.central_de_erros.assembler.EventMapper;
 import br.com.codenation.central_de_erros.assembler.EventResourceLogMapper;
+import br.com.codenation.central_de_erros.assembler.SuccessJSON;
 import br.com.codenation.central_de_erros.entity.LevelConverter;
 import br.com.codenation.central_de_erros.entity.Event;
 import br.com.codenation.central_de_erros.exception.EventNotFoundException;
+import br.com.codenation.central_de_erros.exception.WrongUserInputException;
 import br.com.codenation.central_de_erros.resources.EventResource;
 import br.com.codenation.central_de_erros.resources.EventResourceWithLog;
 import br.com.codenation.central_de_erros.service.interfaces.EventServiceInterface;
@@ -12,9 +14,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedResourcesAssembler;
-import org.springframework.hateoas.Link;
-import org.springframework.hateoas.PagedResources;
-import org.springframework.hateoas.ResourceAssembler;
+import org.springframework.hateoas.*;
+import org.springframework.hateoas.mvc.ControllerLinkBuilder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -76,23 +77,29 @@ public class EventController {
     public ResponseEntity<EventResourceWithLog> change(@Valid @RequestBody Event newEvent,
             @PathVariable Long id) throws URISyntaxException {
 
+        if (newEvent.getId() != null && newEvent.getId() != id){
+            throw new WrongUserInputException("URI id (" + id + ") and body id (" +
+                    newEvent.getId() + ") diverge.");
+        }
+
         Event updatedEvent = eventService.findById(id)
                 .map(event -> eventService.save(eventMapper.map(event, newEvent)))
-                .orElseGet(() -> {
-                    newEvent.setId(id);
-                    return eventService.save(newEvent);
-                });
+                .orElseGet(() -> eventService.save(newEvent));
 
         EventResourceWithLog resource = eventResourceLogMapper.map(updatedEvent);
         return ResponseEntity.created(new URI(resource.getId().expand().getHref())).body(resource);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> delete(@PathVariable Long id){
+    public ResponseEntity<Resource<SuccessJSON>> delete(@PathVariable Long id){
         eventService.findById(id)
                 .orElseThrow(() -> new EventNotFoundException(id));
         eventService.delete(id);
-        return ResponseEntity.ok("Event with id " + id + " removed with success");
+
+        Resource<SuccessJSON> resource = new Resource<>(new SuccessJSON("Event with id " + id + " removed with success"));
+        resource.add(ControllerLinkBuilder.linkTo(EventController.class) .withRel("events"));
+
+        return ResponseEntity.ok(resource);
     }
 
 }
