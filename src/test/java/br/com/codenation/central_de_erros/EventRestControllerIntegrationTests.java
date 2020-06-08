@@ -6,6 +6,7 @@ import br.com.codenation.central_de_erros.repository.EventRepository;
 import br.com.codenation.central_de_erros.service.Impl.EventService;
 import org.hamcrest.Matchers;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,28 +67,6 @@ public class EventRestControllerIntegrationTests {
         eventRepository.save(event2);
         eventRepository.save(event3);
     }
-
-    // Repeated Logic
-    @Test
-    @WithMockUser(roles="ADMIN")
-    public void shouldJustIncrementFieldIfRepeated() throws Exception {
-        mvc.perform(MockMvcRequestBuilders.post("/events")
-                .with(csrf())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content("{" +
-                        "\"level\": \"INFO\"," +
-                        "\"description\": \"Deixa eu te falar uma coisa\"," +
-                        "\"origin\": \"spring\",\n" +
-                        "\"dateTime\": \"2020-06-01 15:36\",\n" +
-                        "\"repeated\": 8,\n" +
-                        "\"log\": \"Tô executando essa parada aqui\"\n" +
-                        "}"))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.id", Matchers.equalTo(3)))
-                .andExpect(jsonPath("$.repeated", Matchers.equalTo(10)))
-                ;
-    }
-
 
 
     // GET All()
@@ -313,6 +292,45 @@ public class EventRestControllerIntegrationTests {
                 .andExpect(status().isBadRequest());
     }
 
+    @Test
+    @WithMockUser(roles="ADMIN")
+    public void shouldSumFieldsIfRepeated() throws Exception {
+        mvc.perform(MockMvcRequestBuilders.post("/events")
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{" +
+                        "\"level\": \"INFO\"," +
+                        "\"description\": \"Deixa eu te falar uma coisa\"," +
+                        "\"origin\": \"spring\",\n" +
+                        "\"dateTime\": \"2020-06-01 15:36\",\n" +
+                        "\"repeated\": 8,\n" +
+                        "\"log\": \"Tô executando essa parada aqui\"\n" +
+                        "}"))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id", Matchers.equalTo(3)))
+                .andExpect(jsonPath("$.repeated", Matchers.equalTo(10)))
+        ;
+    }
+
+    @Test
+    @WithMockUser(roles="ADMIN")
+    public void shouldJustIncrementFieldIfRepeatedIs0() throws Exception {
+        mvc.perform(MockMvcRequestBuilders.post("/events")
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{" +
+                        "\"level\": \"INFO\"," +
+                        "\"description\": \"Deixa eu te falar uma coisa\"," +
+                        "\"origin\": \"spring\",\n" +
+                        "\"dateTime\": \"2020-06-01 15:36\",\n" +
+                        "\"repeated\": 0,\n" +
+                        "\"log\": \"Tô executando essa parada aqui\"\n" +
+                        "}"))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id", Matchers.equalTo(3)))
+                .andExpect(jsonPath("$.repeated", Matchers.equalTo(3)))
+        ;
+    }
     // PUT change()
 
     @Test

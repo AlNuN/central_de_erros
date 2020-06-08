@@ -17,10 +17,10 @@ import org.springframework.test.context.junit4.SpringRunner;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import static org.hamcrest.collection.IsIterableContainingInAnyOrder.containsInAnyOrder;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.*;
 
 @ContextConfiguration(classes=CentralDeErrosApplication.class)
 @RunWith(SpringRunner.class)
@@ -58,6 +58,16 @@ public class EventRepositoryIntegrationTests {
         eventRepository.save(event1);
         eventRepository.save(event2);
         eventRepository.save(event3);
+    }
+
+    @Test
+    public void shouldReturnEqual(){
+        Event event = eventRepository.findByLevelAndDescriptionAndLogAndOrigin(
+                Level.INFO, "Deixa eu te falar uma coisa",
+                "Tô executando essa parada aqui", "spring"
+        ). orElse(null);
+        List<Event> repository = Arrays.asList(event3, event2, event1);
+        assertEquals(event3, event);
     }
 
     @Test

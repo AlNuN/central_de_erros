@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 
 public interface EventServiceInterface extends ServiceInterface<Event> {
+
     Optional<Event> findById(Long id);
 
     Page<Event> findAll(Pageable pageable);

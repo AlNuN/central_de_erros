@@ -10,9 +10,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.hateoas.Identifiable;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
+import javax.validation.constraints.*;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
@@ -50,6 +48,7 @@ public class Event implements Identifiable<Long>, Serializable {
     private LocalDateTime dateTime;
 
     @NotNull
+    @PositiveOrZero
     private Long repeated;
 
     @Column

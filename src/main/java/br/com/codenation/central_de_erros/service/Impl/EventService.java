@@ -23,9 +23,17 @@ public class EventService implements EventServiceInterface {
     private final EventRepository repository;
 
     @Override
-    public Event save(Event object) {
-        object.setCreatedAt(LocalDateTime.now());
-        return repository.save(object);
+    public Event save(Event event) {
+        return repository.findByLevelAndDescriptionAndLogAndOrigin(
+                event.getLevel(), event.getDescription(),
+                event.getLog(), event.getOrigin()
+        )
+                .map(e -> {
+                    e.setRepeated((e.getRepeated().equals(0L) ? 1 : e.getRepeated()) +
+                            (event.getRepeated().equals(0L) ? 1 : event.getRepeated()));
+                    return repository.save(e);
+                })
+                .orElseGet(() -> repository.save(event));
     }
 
     @Override

@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 
 public interface EventRepository extends JpaRepository<Event, Long> {
@@ -17,4 +18,8 @@ public interface EventRepository extends JpaRepository<Event, Long> {
     Page<Event> findByLogContaining(String log, Pageable pageable);
     Page<Event> findByDateTime(LocalDateTime dateTime, Pageable pageable);
     Page<Event> findByRepeated(Long repeated, Pageable pageable);
+    Optional<Event> findByLevelAndDescriptionAndLogAndOrigin(Level level,
+                                                              String description,
+                                                              String log,
+                                                              String Origin);
 }
