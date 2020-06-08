@@ -17,12 +17,12 @@ public class ApiError {
         timeStamp = LocalDateTime.now();
     }
 
-    ApiError(HttpStatus status){
+    public ApiError(HttpStatus status){
         this();
         this.status = status;
     }
 
-    ApiError(HttpStatus status, String message) {
+    public ApiError(HttpStatus status, String message) {
         this();
         this.status = status;
         this.message = message;
