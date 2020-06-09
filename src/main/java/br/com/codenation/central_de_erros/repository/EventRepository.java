@@ -17,7 +17,7 @@ public interface EventRepository extends JpaRepository<Event, Long> {
     Page<Event> findByOriginContaining(String origin, Pageable pageable);
     Page<Event> findByLogContaining(String log, Pageable pageable);
     Page<Event> findByDateTime(LocalDateTime dateTime, Pageable pageable);
-    Page<Event> findByRepeated(Long repeated, Pageable pageable);
+    Page<Event> findByNumber(Long number, Pageable pageable);
     Optional<Event> findByLevelAndDescriptionAndLogAndOrigin(Level level,
                                                               String description,
                                                               String log,

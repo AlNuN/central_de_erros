@@ -163,8 +163,8 @@ public class EventRestControllerIntegrationTests {
 
     @Test
     @WithMockUser(roles="ADMIN")
-    public void shouldGetByIdenticalRepeatedTimes() throws Exception {
-        mvc.perform(get("/events?repeated=2")
+    public void shouldGetByIdenticalNumber() throws Exception {
+        mvc.perform(get("/events?number=2")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$._embedded.events", hasSize(1)));
@@ -172,8 +172,8 @@ public class EventRestControllerIntegrationTests {
 
     @Test
     @WithMockUser(roles="ADMIN")
-    public void shouldGetBadRequestForInvalidRepeatedInput() throws Exception {
-        mvc.perform(get("/events?repeated=a")
+    public void shouldGetBadRequestForInvalidNumberInput() throws Exception {
+        mvc.perform(get("/events?number=a")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
     }
@@ -220,7 +220,7 @@ public class EventRestControllerIntegrationTests {
                         "\"description\": \"Info de fora\"," +
                         "\"origin\": \"spring\",\n" +
                         "\"dateTime\": \"2020-06-01 15:36\",\n" +
-                        "\"repeated\": 8,\n" +
+                        "\"number\": 8,\n" +
                         "\"log\": \"Aqui tem informação!\"\n" +
                         "}"))
                 .andExpect(status().isCreated())
@@ -239,7 +239,7 @@ public class EventRestControllerIntegrationTests {
                         "\"description\": \"Info de fora\"," +
                         "\"origin\": \"spring\",\n" +
                         "\"dateTime\": \"2020-06-01 15:36\",\n" +
-                        "\"repeated\": 8,\n" +
+                        "\"number\": 8,\n" +
                         "\"log\": \"Aqui tem informação!\"\n" +
                         "}"))
                 .andExpect(status().isCreated())
@@ -258,7 +258,7 @@ public class EventRestControllerIntegrationTests {
                         "\"description\": \"Info de fora\"," +
                         "\"origin\": \"spring\",\n" +
                         "\"dateTime\": \"2020-06-01 15:36\",\n" +
-                        "\"repeated\": 8,\n" +
+                        "\"number\": 8,\n" +
                         "\"log\": \"Aqui tem informação!\"\n" +
                         "}"))
                 .andExpect(status().isBadRequest());
@@ -272,7 +272,7 @@ public class EventRestControllerIntegrationTests {
                         "\"description\": \"Info de fora\"," +
                         "\"origin\": \"spring\",\n" +
                         "\"dateTime\": \"2020-06-01 15:36\",\n" +
-                        "\"repeated\": 8,\n" +
+                        "\"number\": 8,\n" +
                         "\"log\": \"Aqui tem informação!\"\n" +
                         "}"))
                 .andExpect(status().isBadRequest());
@@ -286,7 +286,7 @@ public class EventRestControllerIntegrationTests {
                         "\"description\": \"Info de fora\"," +
                         "\"origin\": \"spring\",\n" +
                         "\"dateTime\": \"2020-06-01 15:36\",\n" +
-                        "\"repeated\": 8,\n" +
+                        "\"number\": 8,\n" +
                         "\"log\": \"Aqui tem informação!\"\n" +
                         "}"))
                 .andExpect(status().isBadRequest());
@@ -294,7 +294,7 @@ public class EventRestControllerIntegrationTests {
 
     @Test
     @WithMockUser(roles="ADMIN")
-    public void shouldSumFieldsIfRepeated() throws Exception {
+    public void shouldSumFieldsIfEqual() throws Exception {
         mvc.perform(MockMvcRequestBuilders.post("/events")
                 .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
@@ -303,18 +303,18 @@ public class EventRestControllerIntegrationTests {
                         "\"description\": \"Deixa eu te falar uma coisa\"," +
                         "\"origin\": \"spring\",\n" +
                         "\"dateTime\": \"2020-06-01 15:36\",\n" +
-                        "\"repeated\": 8,\n" +
+                        "\"number\": 8,\n" +
                         "\"log\": \"Tô executando essa parada aqui\"\n" +
                         "}"))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id", Matchers.equalTo(3)))
-                .andExpect(jsonPath("$.repeated", Matchers.equalTo(10)))
+                .andExpect(jsonPath("$.number", Matchers.equalTo(10)))
         ;
     }
 
     @Test
     @WithMockUser(roles="ADMIN")
-    public void shouldJustIncrementFieldIfRepeatedIs0() throws Exception {
+    public void shouldSumFieldIfNumberIs0() throws Exception {
         mvc.perform(MockMvcRequestBuilders.post("/events")
                 .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
@@ -323,14 +323,15 @@ public class EventRestControllerIntegrationTests {
                         "\"description\": \"Deixa eu te falar uma coisa\"," +
                         "\"origin\": \"spring\",\n" +
                         "\"dateTime\": \"2020-06-01 15:36\",\n" +
-                        "\"repeated\": 0,\n" +
+                        "\"number\": 0,\n" +
                         "\"log\": \"Tô executando essa parada aqui\"\n" +
                         "}"))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id", Matchers.equalTo(3)))
-                .andExpect(jsonPath("$.repeated", Matchers.equalTo(3)))
+                .andExpect(jsonPath("$.number", Matchers.equalTo(2)))
         ;
     }
+
     // PUT change()
 
     @Test
@@ -344,12 +345,29 @@ public class EventRestControllerIntegrationTests {
                         "\"description\": \"Info de fora\"," +
                         "\"origin\": \"spring\",\n" +
                         "\"dateTime\": \"2020-06-01 15:36\",\n" +
-                        "\"repeated\": 8,\n" +
+                        "\"number\": 8,\n" +
                         "\"log\": \"Aqui tem informação!\"\n" +
                         "}"))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id", Matchers.equalTo(1)))
-                .andExpect(jsonPath("$.level", Matchers.equalTo("INFO")));
+                .andExpect(jsonPath("$.level", Matchers.equalTo("INFO")))
+                .andExpect(jsonPath("$.number", Matchers.equalTo(8)));
+
+        mvc.perform(MockMvcRequestBuilders.put("/events/1")
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{" +
+                        "\"level\": \"INFO\"," +
+                        "\"description\": \"Info de fora\"," +
+                        "\"origin\": \"spring\",\n" +
+                        "\"dateTime\": \"2020-06-01 15:36\",\n" +
+                        "\"number\": 10,\n" +
+                        "\"log\": \"Aqui tem informação!\"\n" +
+                        "}"))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id", Matchers.equalTo(1)))
+                .andExpect(jsonPath("$.level", Matchers.equalTo("INFO")))
+                .andExpect(jsonPath("$.number", Matchers.equalTo(10)));
     }
 
     @Test
@@ -363,7 +381,7 @@ public class EventRestControllerIntegrationTests {
                         "\"description\": \"Info de fora\"," +
                         "\"origin\": \"spring\",\n" +
                         "\"dateTime\": \"2020-06-01 15:36\",\n" +
-                        "\"repeated\": 8,\n" +
+                        "\"number\": 8,\n" +
                         "\"log\": \"Aqui tem informação!\"\n" +
                         "}"))
                 .andExpect(status().isCreated())
@@ -383,7 +401,7 @@ public class EventRestControllerIntegrationTests {
                         "\"description\": \"Info de fora\"," +
                         "\"origin\": \"spring\",\n" +
                         "\"dateTime\": \"2020-06-01 15:36\",\n" +
-                        "\"repeated\": 8,\n" +
+                        "\"number\": 8,\n" +
                         "\"log\": \"Aqui tem informação!\"\n" +
                         "}"))
                 .andExpect(status().isBadRequest());

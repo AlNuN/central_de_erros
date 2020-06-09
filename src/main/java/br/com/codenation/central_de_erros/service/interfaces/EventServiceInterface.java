@@ -11,6 +11,8 @@ import java.util.Optional;
 
 public interface EventServiceInterface extends ServiceInterface<Event> {
 
+    Event saveNew(Event event);
+
     Optional<Event> findById(Long id);
 
     Page<Event> findAll(Pageable pageable);
@@ -25,7 +27,7 @@ public interface EventServiceInterface extends ServiceInterface<Event> {
 
     Page<Event> findByDateTime(String date, Pageable pageable);
 
-    Page<Event> findByRepeated(String repeatedString, Pageable pageable);
+    Page<Event> findByNumber(String repeatedString, Pageable pageable);
 
     void delete(Long id);
 }

@@ -49,7 +49,7 @@ public class Event implements Identifiable<Long>, Serializable {
 
     @NotNull
     @PositiveOrZero
-    private Long repeated;
+    private Long number;
 
     @Column
     @CreatedDate

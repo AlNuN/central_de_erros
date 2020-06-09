@@ -23,14 +23,18 @@ public class EventService implements EventServiceInterface {
     private final EventRepository repository;
 
     @Override
-    public Event save(Event event) {
+    public Event save(Event event){
+        return repository.save(event);
+    }
+
+    @Override
+    public Event saveNew(Event event) {
         return repository.findByLevelAndDescriptionAndLogAndOrigin(
                 event.getLevel(), event.getDescription(),
                 event.getLog(), event.getOrigin()
         )
                 .map(e -> {
-                    e.setRepeated((e.getRepeated().equals(0L) ? 1 : e.getRepeated()) +
-                            (event.getRepeated().equals(0L) ? 1 : event.getRepeated()));
+                    e.setNumber(e.getNumber() + event.getNumber());
                     return repository.save(e);
                 })
                 .orElseGet(() -> repository.save(event));
@@ -82,12 +86,12 @@ public class EventService implements EventServiceInterface {
     }
 
     @Override
-    public Page<Event> findByRepeated(String repeatedString, Pageable pageable) {
+    public Page<Event> findByNumber(String numberString, Pageable pageable) {
         try {
-            Long repeated = Long.valueOf(repeatedString);
-            return repository.findByRepeated(repeated, pageable);
+            Long number = Long.valueOf(numberString);
+            return repository.findByNumber(number, pageable);
         }catch (NumberFormatException n){
-            throw new WrongUserInputException("Input '" + repeatedString +
+            throw new WrongUserInputException("Input '" + numberString +
                     "' is not valid. It should be a integer number.");
         }
     }

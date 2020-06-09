@@ -41,7 +41,7 @@ public class EventController {
                                                              @RequestParam Optional<String> origin,
                                                              @RequestParam Optional<String> log,
                                                              @RequestParam Optional<String> dateTime,
-                                                             @RequestParam Optional<String> repeated,
+                                                             @RequestParam Optional<String> number,
                                                              Pageable pageable,
                                                              PagedResourcesAssembler<Event> pagedResourceAssembler,
                                                              LevelConverter typeConverter) {
@@ -51,7 +51,7 @@ public class EventController {
                         .orElseGet(() -> origin.map(o -> eventService.findByOrigin(o, pageable))
                                 .orElseGet(() -> log.map(l -> eventService.findByLog(l, pageable))
                                         .orElseGet(() -> dateTime.map(d -> eventService.findByDateTime(d, pageable))
-                                                .orElseGet(() -> repeated.map(r -> eventService.findByRepeated(r, pageable))
+                                                .orElseGet(() -> number.map(r -> eventService.findByNumber(r, pageable))
                                                         .orElse(eventService.findAll(pageable)))))));
 
         Link selfLink = new Link(ServletUriComponentsBuilder.fromCurrentRequest().build().toUriString());
@@ -69,7 +69,7 @@ public class EventController {
     @PostMapping
     public ResponseEntity<EventResourceWithLog> newEvent(@Valid @RequestBody Event newEvent)
                                                 throws URISyntaxException {
-            EventResourceWithLog resource = eventResourceLogMapper.map(eventService.save(newEvent));
+            EventResourceWithLog resource = eventResourceLogMapper.map(eventService.saveNew(newEvent));
             return ResponseEntity.created(new URI(resource.getId().expand().getHref())).body(resource);
     }
 
@@ -84,7 +84,7 @@ public class EventController {
 
         Event updatedEvent = eventService.findById(id)
                 .map(event -> eventService.save(eventMapper.map(event, newEvent)))
-                .orElseGet(() -> eventService.save(newEvent));
+                .orElseGet(() -> eventService.saveNew(newEvent));
 
         EventResourceWithLog resource = eventResourceLogMapper.map(updatedEvent);
         return ResponseEntity.created(new URI(resource.getId().expand().getHref())).body(resource);

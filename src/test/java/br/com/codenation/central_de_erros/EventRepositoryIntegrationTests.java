@@ -17,7 +17,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
 import static org.hamcrest.collection.IsIterableContainingInAnyOrder.containsInAnyOrder;
 import static org.junit.Assert.*;
@@ -65,7 +64,7 @@ public class EventRepositoryIntegrationTests {
         Event event = eventRepository.findByLevelAndDescriptionAndLogAndOrigin(
                 Level.INFO, "Deixa eu te falar uma coisa",
                 "Tô executando essa parada aqui", "spring"
-        ). orElse(null);
+        ).orElse(null);
         List<Event> repository = Arrays.asList(event3, event2, event1);
         assertEquals(event3, event);
     }
@@ -113,8 +112,8 @@ public class EventRepositoryIntegrationTests {
     }
 
     @Test
-    public void shouldReturnIdenticalRepeated(){
-        List<Event> events = eventRepository.findByRepeated(0L, Pageable.unpaged()).getContent();
+    public void shouldReturnIdenticalNumber(){
+        List<Event> events = eventRepository.findByNumber(0L, Pageable.unpaged()).getContent();
         List<Event> repository = Arrays.asList(event1);
         assertArrayEquals(repository.toArray(), events.toArray());
     }

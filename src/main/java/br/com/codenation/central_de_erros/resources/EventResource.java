@@ -23,6 +23,6 @@ public class EventResource extends ResourceSupport {
     public String description;
     public String origin;
     public String dateTime;
-    public Long repeated;
+    public Long number;
 
 }
