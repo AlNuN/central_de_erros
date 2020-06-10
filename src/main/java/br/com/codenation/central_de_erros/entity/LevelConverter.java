@@ -18,7 +18,7 @@ public class LevelConverter implements AttributeConverter<Level, String> {
         if(s == null) { return null; }
 
         return Stream.of(Level.values())
-                .filter(e -> e.getCode().equals(s) || e.name().equals(s))
+                .filter(e -> e.getCode().equals(s))
                 .findFirst()
                 .orElseThrow(IllegalArgumentException::new);
     }

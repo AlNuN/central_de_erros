@@ -3,7 +3,6 @@ package br.com.codenation.central_de_erros.controller;
 import br.com.codenation.central_de_erros.assembler.EventMapper;
 import br.com.codenation.central_de_erros.assembler.EventResourceLogMapper;
 import br.com.codenation.central_de_erros.assembler.SuccessJSON;
-import br.com.codenation.central_de_erros.entity.LevelConverter;
 import br.com.codenation.central_de_erros.entity.Event;
 import br.com.codenation.central_de_erros.exception.EventNotFoundException;
 import br.com.codenation.central_de_erros.exception.WrongUserInputException;
@@ -11,10 +10,18 @@ import br.com.codenation.central_de_erros.resources.EventResource;
 import br.com.codenation.central_de_erros.resources.EventResourceWithLog;
 import br.com.codenation.central_de_erros.service.interfaces.EventServiceInterface;
 import lombok.RequiredArgsConstructor;
+import net.kaczmarzyk.spring.data.jpa.domain.Equal;
+import net.kaczmarzyk.spring.data.jpa.domain.Like;
+import net.kaczmarzyk.spring.data.jpa.web.annotation.And;
+import net.kaczmarzyk.spring.data.jpa.web.annotation.Spec;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.web.PagedResourcesAssembler;
-import org.springframework.hateoas.*;
+import org.springframework.hateoas.Link;
+import org.springframework.hateoas.PagedResources;
+import org.springframework.hateoas.Resource;
+import org.springframework.hateoas.ResourceAssembler;
 import org.springframework.hateoas.mvc.ControllerLinkBuilder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,7 +30,6 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import javax.validation.Valid;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
@@ -36,23 +42,19 @@ public class EventController {
     private final EventMapper eventMapper;
 
     @GetMapping
-    public ResponseEntity<PagedResources<EventResource>> all(@RequestParam Optional<String> level,
-                                                             @RequestParam Optional<String> description,
-                                                             @RequestParam Optional<String> origin,
-                                                             @RequestParam Optional<String> log,
-                                                             @RequestParam Optional<String> dateTime,
-                                                             @RequestParam Optional<String> number,
+    public ResponseEntity<PagedResources<EventResource>> all(@And({
+                                                                     @Spec(path = "level", spec = Equal.class),
+                                                                     @Spec(path = "description", spec = Like.class),
+                                                                     @Spec(path = "origin", spec = Like.class),
+                                                                     @Spec(path = "log", spec = Like.class),
+                                                                     @Spec(path = "dateTime", spec = Equal.class,
+                                                                             config = "yyyy-MM-dd HH:mm"),
+                                                                     @Spec(path = "number", spec = Equal.class)
+                                                             }) Specification<Event> eventSpec,
                                                              Pageable pageable,
-                                                             PagedResourcesAssembler<Event> pagedResourceAssembler,
-                                                             LevelConverter typeConverter) {
+                                                             PagedResourcesAssembler<Event> pagedResourceAssembler) {
 
-        Page<Event> events = level.map(l -> eventService.findByLevel(l, pageable, typeConverter))
-                .orElseGet(() -> description.map(d -> eventService.findByDescription(d, pageable))
-                        .orElseGet(() -> origin.map(o -> eventService.findByOrigin(o, pageable))
-                                .orElseGet(() -> log.map(l -> eventService.findByLog(l, pageable))
-                                        .orElseGet(() -> dateTime.map(d -> eventService.findByDateTime(d, pageable))
-                                                .orElseGet(() -> number.map(r -> eventService.findByNumber(r, pageable))
-                                                        .orElse(eventService.findAll(pageable)))))));
+        Page<Event> events = eventService.findAll(eventSpec, pageable);
 
         Link selfLink = new Link(ServletUriComponentsBuilder.fromCurrentRequest().build().toUriString());
         PagedResources<EventResource> result = pagedResourceAssembler.toResource(events, eventResourceAssembler, selfLink);

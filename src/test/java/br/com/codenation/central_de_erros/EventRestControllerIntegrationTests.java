@@ -102,7 +102,7 @@ public class EventRestControllerIntegrationTests {
     @Test
     @WithMockUser(roles="ADMIN")
     public void shouldGetOnlyInfos() throws Exception {
-        mvc.perform(get("/events?level=I")
+        mvc.perform(get("/events?level=INFO")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$._embedded.events", hasSize(1)))
@@ -111,10 +111,11 @@ public class EventRestControllerIntegrationTests {
 
     @Test
     @WithMockUser(roles="ADMIN")
-    public void shouldReturnBadRequestForWrongInfo() throws Exception {
-        mvc.perform(get("/events?level=In")
+    public void shouldReturnEmptyListForWrongInfo() throws Exception {
+        mvc.perform(get("/events?level=I")
                 .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.page.totalElements", equalTo(0)));
     }
 
     @Test
@@ -155,7 +156,7 @@ public class EventRestControllerIntegrationTests {
 
     @Test
     @WithMockUser(roles="ADMIN")
-    public void shouldGetBadRequestForWrongDateTimeFormat() throws Exception {
+    public void shouldReturnBadRequestForWrongDateTimeFormat() throws Exception {
         mvc.perform(get("/events?dateTime=2020-5-23 9:38")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
@@ -172,10 +173,11 @@ public class EventRestControllerIntegrationTests {
 
     @Test
     @WithMockUser(roles="ADMIN")
-    public void shouldGetBadRequestForInvalidNumberInput() throws Exception {
+    public void shouldGetEmptyListForInvalidNumberInput() throws Exception {
         mvc.perform(get("/events?number=a")
                 .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.page.totalElements", equalTo(0)));
     }
 
     // GET one()

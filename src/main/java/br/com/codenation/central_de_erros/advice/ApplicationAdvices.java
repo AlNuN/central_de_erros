@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.time.format.DateTimeParseException;
+
 @ControllerAdvice
 public class ApplicationAdvices  {
 
@@ -23,7 +25,14 @@ public class ApplicationAdvices  {
 
     @ResponseBody
     @ExceptionHandler(WrongUserInputException.class)
-    ResponseEntity<Resource<ApiError>> dateTimeParseExceptionHandler(WrongUserInputException ex) {
+    ResponseEntity<Resource<ApiError>> WrongInputExceptionHandler(WrongUserInputException ex) {
+        ApiError error = new ApiError(HttpStatus.BAD_REQUEST, ex.getMessage());
+        return buildResponseEntity(error);
+    }
+
+    @ResponseBody
+    @ExceptionHandler(DateTimeParseException.class)
+    ResponseEntity<Resource<ApiError>> dateTimeParseExceptionHandler(DateTimeParseException ex) {
         ApiError error = new ApiError(HttpStatus.BAD_REQUEST, ex.getMessage());
         return buildResponseEntity(error);
     }
