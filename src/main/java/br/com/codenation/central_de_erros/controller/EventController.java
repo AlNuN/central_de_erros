@@ -74,7 +74,7 @@ public class EventController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<EventResourceWithLog> change(@Valid @RequestBody Event newEvent,
+    public ResponseEntity<EventResourceWithLog> update(@Valid @RequestBody Event newEvent,
             @PathVariable Long id) throws URISyntaxException {
 
         if (newEvent.getId() != null && newEvent.getId() != id){
