@@ -1,5 +1,6 @@
 package br.com.codenation.central_de_erros.controller;
 
+import org.hamcrest.Matchers;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,11 +66,11 @@ public class GetAllEventIntegrationTests extends ControllerDbSetup{
 
     @Test
     @WithMockUser(roles="ADMIN")
-    public void shouldReturnEmptyListForWrongInfo() throws Exception {
+    public void shouldReturnBadRequestWithMeaningfulMessageForWrongInfo() throws Exception {
         mvc.perform(get("/events?level=I")
                 .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.page.totalElements", equalTo(0)));
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message", Matchers.containsString("could not find value I for enum")));
     }
 
     @Test
@@ -110,6 +111,47 @@ public class GetAllEventIntegrationTests extends ControllerDbSetup{
 
     @Test
     @WithMockUser(roles="ADMIN")
+    public void shouldGetByDateTimeInApril() throws Exception {
+        mvc.perform(get("/events?dateTimeAfter=2020-04-01 00:00&dateTimeBefore=2020-05-01 00:00")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$._embedded.events", hasSize(2)))
+                .andExpect(jsonPath("$._embedded.events[0].id", equalTo(2)))
+                .andExpect(jsonPath("$._embedded.events[1].id", equalTo(6)));
+    }
+
+    @Test
+    @WithMockUser(roles="ADMIN")
+    public void shouldGetBadRequestForOnly1ParamForBetweenDateWithMeaningfulMessage() throws Exception {
+        mvc.perform(get("/events?dateTimeBefore=2020-01-01 00:00")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message", Matchers.containsString("expected 2")));
+    }
+
+    @Test
+    @WithMockUser(roles="ADMIN")
+    public void shouldGetByDateTimeBefore2020() throws Exception {
+        mvc.perform(get("/events?dateTimePre=2020-01-01 00:00")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$._embedded.events", hasSize(2)))
+                .andExpect(jsonPath("$._embedded.events[0].id", equalTo(4)))
+                .andExpect(jsonPath("$._embedded.events[1].id", equalTo(7)));
+    }
+
+    @Test
+    @WithMockUser(roles="ADMIN")
+    public void shouldGetByDateTimeAfter2021() throws Exception {
+        mvc.perform(get("/events?dateTimePos=2021-01-01 00:00")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$._embedded.events", hasSize(1)))
+                .andExpect(jsonPath("$._embedded.events[0].id", equalTo(5)));
+    }
+
+    @Test
+    @WithMockUser(roles="ADMIN")
     public void shouldReturnBadRequestForWrongDateTimeFormat() throws Exception {
         mvc.perform(get("/events?dateTime=2020-5-23 9:38")
                 .contentType(MediaType.APPLICATION_JSON))
@@ -127,10 +169,31 @@ public class GetAllEventIntegrationTests extends ControllerDbSetup{
 
     @Test
     @WithMockUser(roles="ADMIN")
-    public void shouldGetEmptyListForInvalidNumberInput() throws Exception {
+    public void shouldGetBadRequestWithMeaningfulMessageForInvalidNumberInput() throws Exception {
         mvc.perform(get("/events?number=a")
                 .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.page.totalElements", equalTo(0)));
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message", Matchers.containsString("number format exception")));
     }
+
+    @Test
+    @WithMockUser(roles="ADMIN")
+    public void shouldGetWarningsWithDepreInLogSortedByDescendentId() throws Exception {
+        mvc.perform(get("/events?level=WARNING&log=depre&sort=id,desc")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$._embedded.events", hasSize(2)))
+                .andExpect(jsonPath("$._embedded.events[0].id", equalTo(5)))
+                .andExpect(jsonPath("$._embedded.events[1].id", equalTo(1)));
+    }
+
+    @Test
+    @WithMockUser(roles="ADMIN")
+    public void shouldReturnAllForWrongQuery() throws Exception {
+        mvc.perform(get("/events?a")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$._embedded.events", hasSize(7)));
+    }
+
 }
