@@ -37,10 +37,33 @@ public class ApplicationAdvices  {
         return buildResponseEntity(error);
     }
 
+    @ResponseBody
+    @ExceptionHandler(IllegalArgumentException.class)
+    ResponseEntity<Resource<ApiError>> IllegalArgumentExceptionHandler(IllegalArgumentException ex) {
+        ApiError error = new ApiError(HttpStatus.BAD_REQUEST, ex.getMessage());
+        return buildResponseEntity(error);
+    }
+
+    @ResponseBody
+    @ExceptionHandler(IllegalStateException.class)
+    ResponseEntity<Resource<ApiError>> IllegalStateExceptionHandler(IllegalStateException ex) {
+        ApiError error = new ApiError(HttpStatus.BAD_REQUEST, getCause(ex).getMessage());
+        return buildResponseEntity(error);
+    }
+
     private ResponseEntity<Resource<ApiError>> buildResponseEntity(ApiError apiError){
         Resource<ApiError> resource = new Resource<>(apiError);
         resource.add(ControllerLinkBuilder.linkTo(EventController.class) .withRel("events"));
         return new ResponseEntity<>(resource, apiError.getStatus());
     }
 
+    Throwable getCause(Throwable e) {
+        Throwable cause = null;
+        Throwable result = e;
+
+        while(null != (cause = result.getCause())  && (result != cause) ) {
+            result = cause;
+        }
+        return result;
+    }
 }
