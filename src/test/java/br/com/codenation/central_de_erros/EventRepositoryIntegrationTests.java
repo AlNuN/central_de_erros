@@ -10,14 +10,21 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.auditing.AuditingHandler;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.junit.Assert.*;
 
 @ContextConfiguration(classes=CentralDeErrosApplication.class)
 @RunWith(SpringRunner.class)
@@ -63,57 +70,34 @@ public class EventRepositoryIntegrationTests {
                 Level.INFO, "Deixa eu te falar uma coisa",
                 "Tô executando essa parada aqui", "spring"
         ).orElse(null);
-        List<Event> repository = Arrays.asList(event3, event2, event1);
         assertEquals(event3, event);
     }
 
-//    @Test
-//    public void shouldReturnAll(){
-//
-//        List<Event> events = eventRepository.findAll(Pageable.unpaged()).getContent();
-//        List<Event> repository = Arrays.asList(event3, event2, event1);
-//        assertThat(repository, containsInAnyOrder(events.toArray()));
-//    }
-//
-//    @Test
-//    public void shouldReturnOnlyWithSameLevel(){
-//        List<Event> events = eventRepository.findByLevel(Level.INFO, Pageable.unpaged()).getContent();
-//        List<Event> repository = Arrays.asList(event3);
-//        assertArrayEquals(repository.toArray(), events.toArray());
-//    }
-//
-//    @Test
-//    public void shouldReturnWithDescriptionAlike(){
-//        List<Event> events = eventRepository.findByDescriptionContaining("ruim", Pageable.unpaged()).getContent();
-//        List<Event> repository = Arrays.asList(event1, event2);
-//        assertArrayEquals(repository.toArray(), events.toArray());
-//    }
-//
-//    @Test
-//    public void shouldReturnWithOriginAlike(){
-//        List<Event> events = eventRepository.findByOriginContaining("ing", Pageable.unpaged()).getContent();
-//        List<Event> repository = Arrays.asList(event3);
-//        assertArrayEquals(repository.toArray(), events.toArray());
-//    }
-//
-//    @Test
-//    public void shouldReturnWithLogAlike(){
-//        List<Event> events = eventRepository.findByLogContaining("0", Pageable.unpaged()).getContent();
-//        List<Event> repository = Arrays.asList(event2);
-//        assertArrayEquals(repository.toArray(), events.toArray());
-//    }
-//
-//    @Test
-//    public void shouldReturnIdenticalDate(){
-//        List<Event> events = eventRepository.findByDateTime(LocalDateTime.of(2020,06,02,16,03), Pageable.unpaged()).getContent();
-//        List<Event> repository = Arrays.asList(event3);
-//        assertArrayEquals(repository.toArray(), events.toArray());
-//    }
-//
-//    @Test
-//    public void shouldReturnIdenticalNumber(){
-//        List<Event> events = eventRepository.findByNumber(0L, Pageable.unpaged()).getContent();
-//        List<Event> repository = Arrays.asList(event1);
-//        assertArrayEquals(repository.toArray(), events.toArray());
-//    }
+    @Test
+    public void shouldReturnAll(){
+        Specification<Event> specs = null;
+        List<Event> events = eventRepository.findAll(specs , Pageable.unpaged()).getContent();
+        List<Event> repository = Arrays.asList(event3, event2, event1);
+        assertThat(repository, containsInAnyOrder(events.toArray()));
+    }
+
+    @Test
+    public void shouldReturnOnlyWithSameLevel(){
+        Specification<Event> specs = (Specification<Event>) (root, criteriaQuery, criteriaBuilder) ->
+                criteriaBuilder.equal(root.get("level"), Level.INFO);
+        List<Event> events = eventRepository.findAll(specs , Pageable.unpaged()).getContent();
+        List<Event> repository = Arrays.asList(event3);
+        assertThat(repository, containsInAnyOrder(events.toArray()));
+    }
+
+    @Test
+    public void shouldReturnWithDescriptionAlike(){
+        Specification<Event> specs = (Specification<Event>) (root, criteriaQuery, criteriaBuilder) ->
+                criteriaBuilder.like(root.get("description"), "%ruim%");
+        List<Event> events = eventRepository.findAll(specs, Pageable.unpaged()).getContent();
+        List<Event> repository = Arrays.asList(event1, event2);
+        assertArrayEquals(repository.toArray(), events.toArray());
+    }
+
+
 }
