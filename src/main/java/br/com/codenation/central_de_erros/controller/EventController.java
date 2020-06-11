@@ -10,13 +10,8 @@ import br.com.codenation.central_de_erros.resources.EventResource;
 import br.com.codenation.central_de_erros.resources.EventResourceWithLog;
 import br.com.codenation.central_de_erros.service.interfaces.EventServiceInterface;
 import lombok.RequiredArgsConstructor;
-import net.kaczmarzyk.spring.data.jpa.domain.Equal;
-import net.kaczmarzyk.spring.data.jpa.domain.Like;
-import net.kaczmarzyk.spring.data.jpa.web.annotation.And;
-import net.kaczmarzyk.spring.data.jpa.web.annotation.Spec;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.PagedResources;
@@ -42,15 +37,7 @@ public class EventController {
     private final EventMapper eventMapper;
 
     @GetMapping
-    public ResponseEntity<PagedResources<EventResource>> all(@And({
-                                                                     @Spec(path = "level", spec = Equal.class),
-                                                                     @Spec(path = "description", spec = Like.class),
-                                                                     @Spec(path = "origin", spec = Like.class),
-                                                                     @Spec(path = "log", spec = Like.class),
-                                                                     @Spec(path = "dateTime", spec = Equal.class,
-                                                                             config = "yyyy-MM-dd HH:mm"),
-                                                                     @Spec(path = "number", spec = Equal.class)
-                                                             }) Specification<Event> eventSpec,
+    public ResponseEntity<PagedResources<EventResource>> all (EventSpec eventSpec,
                                                              Pageable pageable,
                                                              PagedResourcesAssembler<Event> pagedResourceAssembler) {
 
@@ -69,14 +56,14 @@ public class EventController {
     }
 
     @PostMapping
-    public ResponseEntity<EventResourceWithLog> newEvent(@Valid @RequestBody Event newEvent)
+    public ResponseEntity<EventResourceWithLog> newEvent (@Valid @RequestBody Event newEvent)
                                                 throws URISyntaxException {
             EventResourceWithLog resource = eventResourceLogMapper.map(eventService.saveNew(newEvent));
             return ResponseEntity.created(new URI(resource.getId().expand().getHref())).body(resource);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<EventResourceWithLog> update(@Valid @RequestBody Event newEvent,
+    public ResponseEntity<EventResourceWithLog> update (@Valid @RequestBody Event newEvent,
             @PathVariable Long id) throws URISyntaxException {
 
         if (newEvent.getId() != null && newEvent.getId() != id){
@@ -93,7 +80,7 @@ public class EventController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Resource<SuccessJSON>> delete(@PathVariable Long id){
+    public ResponseEntity<Resource<SuccessJSON>> delete (@PathVariable Long id){
         eventService.findById(id)
                 .orElseThrow(() -> new EventNotFoundException(id));
         eventService.delete(id);
