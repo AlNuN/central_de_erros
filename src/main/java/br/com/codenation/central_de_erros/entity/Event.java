@@ -14,6 +14,8 @@ import javax.validation.constraints.*;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
+//@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "event_sequence")
+//@SequenceGenerator(name = "event_sequence")
 @Entity
 @Data
 @NoArgsConstructor
@@ -22,7 +24,7 @@ import java.time.LocalDateTime;
 @Table(name="events")
 public class Event implements Identifiable<Long>, Serializable {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @NotNull

@@ -5,9 +5,11 @@ import br.com.codenation.central_de_erros.entity.Level;
 import br.com.codenation.central_de_erros.repository.EventRepository;
 import org.junit.Before;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.time.LocalDateTime;
 
+@ActiveProfiles(value = "noAuth")
 public class ControllerDbSetup {
 
     @Autowired
