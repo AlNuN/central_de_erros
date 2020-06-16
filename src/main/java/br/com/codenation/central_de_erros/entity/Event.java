@@ -2,6 +2,7 @@ package br.com.codenation.central_de_erros.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -47,6 +48,7 @@ public class Event implements Identifiable<Long>, Serializable {
 
     @Column
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
+    @ApiModelProperty(dataType = "java.lang.String", example = "2020-05-26 13:45")
     private LocalDateTime dateTime;
 
     @NotNull
