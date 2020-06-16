@@ -97,7 +97,7 @@ public class PostNewEventIntegrationTests {
                         "}"))
                 .andExpect(status().isBadRequest());
 
-        // Wrong field contents
+        // Wrong field value
         mvc.perform(MockMvcRequestBuilders.post("/events")
                 .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)

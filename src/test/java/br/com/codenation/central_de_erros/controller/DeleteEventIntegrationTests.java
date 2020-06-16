@@ -45,4 +45,12 @@ public class DeleteEventIntegrationTests {
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
     }
+
+    @Test
+    @WithMockUser(roles="ADMIN")
+    public void shouldAcceptOnlyNumbers() throws Exception {
+        mvc.perform(MockMvcRequestBuilders.delete("/events/a")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+    }
 }
