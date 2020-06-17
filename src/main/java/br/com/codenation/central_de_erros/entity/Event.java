@@ -1,5 +1,6 @@
 package br.com.codenation.central_de_erros.entity;
 
+import br.com.codenation.central_de_erros.validationGroups.OnCreate;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModelProperty;
@@ -11,12 +12,13 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.hateoas.Identifiable;
 
 import javax.persistence.*;
-import javax.validation.constraints.*;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.PositiveOrZero;
+import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
-//@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "event_sequence")
-//@SequenceGenerator(name = "event_sequence")
 @Entity
 @Data
 @NoArgsConstructor
@@ -28,21 +30,21 @@ public class Event implements Identifiable<Long>, Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotNull
+    @NotNull(groups = OnCreate.class)
     private Level level;
 
-    @NotNull
-    @NotBlank
+    @NotNull(groups = OnCreate.class)
+    @NotBlank(groups = OnCreate.class)
     @Size(max = 255)
     private String description;
 
-    @NotNull
-    @NotBlank
+    @NotNull(groups = OnCreate.class)
+    @NotBlank(groups = OnCreate.class)
     @Size(max = 255)
     private String log;
 
-    @NotNull
-    @NotBlank
+    @NotNull(groups = OnCreate.class)
+    @NotBlank(groups = OnCreate.class)
     @Size(max = 100)
     private String origin;
 
@@ -51,7 +53,7 @@ public class Event implements Identifiable<Long>, Serializable {
     @ApiModelProperty(dataType = "java.lang.String", example = "2020-05-26 13:45")
     private LocalDateTime dateTime;
 
-    @NotNull
+    @NotNull(groups = OnCreate.class)
     @PositiveOrZero
     private Long number;
 

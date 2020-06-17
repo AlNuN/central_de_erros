@@ -9,6 +9,8 @@ import br.com.codenation.central_de_erros.exception.WrongUserInputException;
 import br.com.codenation.central_de_erros.resources.EventResource;
 import br.com.codenation.central_de_erros.resources.EventResourceWithLog;
 import br.com.codenation.central_de_erros.service.interfaces.EventServiceInterface;
+import br.com.codenation.central_de_erros.validationGroups.OnCreate;
+import br.com.codenation.central_de_erros.validationGroups.OnUpdate;
 import io.swagger.annotations.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -20,6 +22,7 @@ import org.springframework.hateoas.Resource;
 import org.springframework.hateoas.ResourceAssembler;
 import org.springframework.hateoas.mvc.ControllerLinkBuilder;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -30,6 +33,7 @@ import java.net.URISyntaxException;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/events")
+@Validated
 public class EventController {
 
     private final EventServiceInterface eventService;
@@ -88,6 +92,7 @@ public class EventController {
             @ApiResponse(code = 400, message = "Missing not null field; wrong field name; wrong field value"),
             @ApiResponse(code = 401, message = "Unauthorized"),
     })
+    @Validated(OnCreate.class)
     public ResponseEntity<EventResourceWithLog> newEvent (@Valid @RequestBody Event newEvent)
                                                 throws URISyntaxException {
             EventResourceWithLog resource = eventResourceLogMapper.map(eventService.saveNew(newEvent));
@@ -97,10 +102,11 @@ public class EventController {
     @PutMapping("/{id}")
     @ApiOperation("Modify event.")
     @ApiResponses({
-            @ApiResponse(code = 201, message = "Created new resource or modified if set existing id"),
-            @ApiResponse(code = 400, message = "Missing not null field; wrong field name; wrong field value; query and body id diverge"),
+            @ApiResponse(code = 201, message = "Modified event"),
+            @ApiResponse(code = 400, message = "wrong field value; query and body id diverge; not existing id"),
             @ApiResponse(code = 401, message = "Unauthorized"),
     })
+    @Validated(OnUpdate.class)
     public ResponseEntity<EventResourceWithLog> update (@Valid @RequestBody Event newEvent,
             @PathVariable Long id) throws URISyntaxException {
 
@@ -111,7 +117,7 @@ public class EventController {
 
         Event updatedEvent = eventService.findById(id)
                 .map(event -> eventService.save(eventMapper.map(event, newEvent)))
-                .orElseGet(() -> eventService.saveNew(newEvent));
+                .orElseThrow(() -> new WrongUserInputException("Event with id '" + id + "' does not exists"));
 
         EventResourceWithLog resource = eventResourceLogMapper.map(updatedEvent);
         return ResponseEntity.created(new URI(resource.getId().expand().getHref())).body(resource);
