@@ -57,6 +57,7 @@ public class UserController {
     @ApiResponses({
             @ApiResponse(code = 201, message = "Password and/or e-mail modified"),
             @ApiResponse(code = 400, message = "Wrong e-mail format; duplicated e-mail, trying to set id"),
+            @ApiResponse(code = 401, message = "Unauthorized")
     })
     @Validated(OnUpdate.class)
     public ResponseEntity<UserResource> update(@Valid @RequestBody User newUser) throws URISyntaxException {
