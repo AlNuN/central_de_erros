@@ -47,6 +47,7 @@ public class SwaggerConfig {
     private Predicate<String> paths(){
         return or(
                 regex("/events.*"),
+                regex("/users.*"),
                 regex("/oauth/token")
         );
     }

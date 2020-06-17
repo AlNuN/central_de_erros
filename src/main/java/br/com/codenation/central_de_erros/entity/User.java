@@ -1,5 +1,6 @@
 package br.com.codenation.central_de_erros.entity;
 
+import br.com.codenation.central_de_erros.validationGroups.OnCreate;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -28,13 +29,13 @@ public class User implements UserDetails {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column
+    @Column(unique = true)
     @Email
-    @NotNull
+    @NotNull(groups = OnCreate.class)
     private String email;
 
     @Column
-    @NotNull
+    @NotNull(groups = OnCreate.class)
     private String password;
 
     @Column
