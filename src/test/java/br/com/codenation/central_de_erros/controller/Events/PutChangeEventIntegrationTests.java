@@ -1,4 +1,4 @@
-package br.com.codenation.central_de_erros.controller;
+package br.com.codenation.central_de_erros.controller.Events;
 
 import org.hamcrest.Matchers;
 import org.junit.Test;
@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
@@ -30,7 +29,6 @@ public class PutChangeEventIntegrationTests {
     private MockMvc mvc;
 
     @Test
-    @WithMockUser(roles="ADMIN")
     public void shouldModifyIfIdExists() throws Exception {
         mvc.perform(MockMvcRequestBuilders.put("/events/1")
                 .with(csrf())
@@ -66,8 +64,7 @@ public class PutChangeEventIntegrationTests {
     }
 
     @Test
-    @WithMockUser(roles="ADMIN")
-    public void shouldSaveNewIfIdDoesNotExistsWithNextId() throws Exception {
+    public void shouldReturnBadRequestIfIdDoesNotExists() throws Exception {
         mvc.perform(MockMvcRequestBuilders.put("/events/20")
                 .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
@@ -79,13 +76,11 @@ public class PutChangeEventIntegrationTests {
                         "\"number\": 8,\n" +
                         "\"log\": \"Aqui tem informação!\"\n" +
                         "}"))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.id", Matchers.equalTo(8)))
-                .andExpect(jsonPath("$.level", Matchers.equalTo("INFO")));
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message", Matchers.equalTo("Event with id '20' does not exists")));
     }
 
     @Test
-    @WithMockUser(roles="ADMIN")
     public void shouldReturnBadRequestIfIdDiverge() throws Exception {
         mvc.perform(MockMvcRequestBuilders.put("/events/2")
                 .with(csrf())
@@ -102,4 +97,59 @@ public class PutChangeEventIntegrationTests {
                 .andExpect(status().isBadRequest());
     }
 
+    @Test
+    public void shouldReturnBadRequestIfWrongLevelValue() throws Exception {
+        mvc.perform(MockMvcRequestBuilders.put("/events/1")
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{" +
+                        "\"level\": \"I\"" +
+                        "}"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void shouldReturnBadRequestIfWrongURIIdFormat() throws Exception {
+        mvc.perform(MockMvcRequestBuilders.put("/events/a")
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{" +
+                        "\"level\": \"INFO\"" +
+                        "}"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void shouldNotUpdateWrongKeyName() throws Exception {
+        mvc.perform(MockMvcRequestBuilders.put("/events/1")
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{" +
+                        "\"evel\": \"INFO\"" +
+                        "}"))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id", Matchers.equalTo(1)))
+                .andExpect(jsonPath("$.level", Matchers.equalTo("WARNING")))
+                .andExpect(jsonPath("$.number", Matchers.equalTo(0)))
+                .andExpect(jsonPath("$.log", Matchers.equalTo("Function slaoq deprecated")))
+                .andExpect(jsonPath("$.origin", Matchers.equalTo("front-end")))
+                .andExpect(jsonPath("$.description", Matchers.equalTo("Deu mais ou menos ruim")));
+    }
+
+    @Test
+    public void shouldModifyOnlySentFieldsAndKeepOthersEqual() throws Exception {
+        mvc.perform(MockMvcRequestBuilders.put("/events/1")
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{" +
+                        "\"level\": \"INFO\"" +
+                        "}"))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id", Matchers.equalTo(1)))
+                .andExpect(jsonPath("$.level", Matchers.equalTo("INFO")))
+                .andExpect(jsonPath("$.number", Matchers.equalTo(0)))
+                .andExpect(jsonPath("$.log", Matchers.equalTo("Function slaoq deprecated")))
+                .andExpect(jsonPath("$.origin", Matchers.equalTo("front-end")))
+                .andExpect(jsonPath("$.description", Matchers.equalTo("Deu mais ou menos ruim")));
+    }
 }

@@ -1,4 +1,4 @@
-package br.com.codenation.central_de_erros.controller;
+package br.com.codenation.central_de_erros.controller.Events;
 
 import org.hamcrest.Matchers;
 import org.junit.Test;
@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
@@ -31,7 +30,6 @@ public class GetAllEventIntegrationTests {
     private MockMvc mvc;
 
     @Test
-    @WithMockUser(roles="ADMIN")
     public void shouldGetAllResources() throws Exception {
         mvc.perform(get("/events")
                 .contentType(MediaType.APPLICATION_JSON))
@@ -40,7 +38,6 @@ public class GetAllEventIntegrationTests {
     }
 
     @Test
-    @WithMockUser(roles="ADMIN")
     public void shouldGetPaginatedResources() throws Exception {
         mvc.perform(get("/events?page=1&size=1")
                 .contentType(MediaType.APPLICATION_JSON))
@@ -50,7 +47,6 @@ public class GetAllEventIntegrationTests {
     }
 
     @Test
-    @WithMockUser(roles="ADMIN")
     public void shouldGetSortedResources() throws Exception {
         mvc.perform(get("/events?page=0&size=1&sort=level,asc")
                 .contentType(MediaType.APPLICATION_JSON))
@@ -59,7 +55,6 @@ public class GetAllEventIntegrationTests {
     }
 
     @Test
-    @WithMockUser(roles="ADMIN")
     public void shouldGetOnlyInfos() throws Exception {
         mvc.perform(get("/events?level=INFO")
                 .contentType(MediaType.APPLICATION_JSON))
@@ -69,7 +64,6 @@ public class GetAllEventIntegrationTests {
     }
 
     @Test
-    @WithMockUser(roles="ADMIN")
     public void shouldReturnBadRequestWithMeaningfulMessageForWrongInfo() throws Exception {
         mvc.perform(get("/events?level=I")
                 .contentType(MediaType.APPLICATION_JSON))
@@ -78,7 +72,6 @@ public class GetAllEventIntegrationTests {
     }
 
     @Test
-    @WithMockUser(roles="ADMIN")
     public void shouldGetByDescriptionContaining() throws Exception {
         mvc.perform(get("/events?description=ruim")
                 .contentType(MediaType.APPLICATION_JSON))
@@ -87,7 +80,6 @@ public class GetAllEventIntegrationTests {
     }
 
     @Test
-    @WithMockUser(roles="ADMIN")
     public void shouldGetByOriginContaining() throws Exception {
         mvc.perform(get("/events?origin=end")
                 .contentType(MediaType.APPLICATION_JSON))
@@ -96,7 +88,6 @@ public class GetAllEventIntegrationTests {
     }
 
     @Test
-    @WithMockUser(roles="ADMIN")
     public void shouldGetByLogContaining() throws Exception {
         mvc.perform(get("/events?log=ion")
                 .contentType(MediaType.APPLICATION_JSON))
@@ -105,7 +96,6 @@ public class GetAllEventIntegrationTests {
     }
 
     @Test
-    @WithMockUser(roles="ADMIN")
     public void shouldGetByIdenticalDateTime() throws Exception {
         mvc.perform(get("/events?dateTime=2020-05-23 09:38")
                 .contentType(MediaType.APPLICATION_JSON))
@@ -114,7 +104,6 @@ public class GetAllEventIntegrationTests {
     }
 
     @Test
-    @WithMockUser(roles="ADMIN")
     public void shouldGetByDateTimeInApril() throws Exception {
         mvc.perform(get("/events?dateTimeAfter=2020-04-01 00:00&dateTimeBefore=2020-05-01 00:00")
                 .contentType(MediaType.APPLICATION_JSON))
@@ -125,7 +114,6 @@ public class GetAllEventIntegrationTests {
     }
 
     @Test
-    @WithMockUser(roles="ADMIN")
     public void shouldGetBadRequestForOnly1ParamForBetweenDateWithMeaningfulMessage() throws Exception {
         mvc.perform(get("/events?dateTimeBefore=2020-01-01 00:00")
                 .contentType(MediaType.APPLICATION_JSON))
@@ -134,7 +122,6 @@ public class GetAllEventIntegrationTests {
     }
 
     @Test
-    @WithMockUser(roles="ADMIN")
     public void shouldGetByDateTimeBefore2020() throws Exception {
         mvc.perform(get("/events?dateTimePre=2020-01-01 00:00")
                 .contentType(MediaType.APPLICATION_JSON))
@@ -145,7 +132,6 @@ public class GetAllEventIntegrationTests {
     }
 
     @Test
-    @WithMockUser(roles="ADMIN")
     public void shouldGetByDateTimeAfter2021() throws Exception {
         mvc.perform(get("/events?dateTimePos=2021-01-01 00:00")
                 .contentType(MediaType.APPLICATION_JSON))
@@ -155,7 +141,6 @@ public class GetAllEventIntegrationTests {
     }
 
     @Test
-    @WithMockUser(roles="ADMIN")
     public void shouldReturnBadRequestForWrongDateTimeFormat() throws Exception {
         mvc.perform(get("/events?dateTime=2020-5-23 9:38")
                 .contentType(MediaType.APPLICATION_JSON))
@@ -163,7 +148,6 @@ public class GetAllEventIntegrationTests {
     }
 
     @Test
-    @WithMockUser(roles="ADMIN")
     public void shouldGetByIdenticalNumber() throws Exception {
         mvc.perform(get("/events?number=2")
                 .contentType(MediaType.APPLICATION_JSON))
@@ -172,7 +156,6 @@ public class GetAllEventIntegrationTests {
     }
 
     @Test
-    @WithMockUser(roles="ADMIN")
     public void shouldGetBadRequestWithMeaningfulMessageForInvalidNumberInput() throws Exception {
         mvc.perform(get("/events?number=a")
                 .contentType(MediaType.APPLICATION_JSON))
@@ -181,7 +164,6 @@ public class GetAllEventIntegrationTests {
     }
 
     @Test
-    @WithMockUser(roles="ADMIN")
     public void shouldGetWarningsWithDepreInLogSortedByDescendentId() throws Exception {
         mvc.perform(get("/events?level=WARNING&log=depre&sort=id,desc")
                 .contentType(MediaType.APPLICATION_JSON))
@@ -192,7 +174,6 @@ public class GetAllEventIntegrationTests {
     }
 
     @Test
-    @WithMockUser(roles="ADMIN")
     public void shouldReturnAllForWrongQuery() throws Exception {
         mvc.perform(get("/events?a")
                 .contentType(MediaType.APPLICATION_JSON))

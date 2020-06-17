@@ -1,4 +1,4 @@
-package br.com.codenation.central_de_erros.controller;
+package br.com.codenation.central_de_erros.controller.Events;
 
 import org.hamcrest.Matchers;
 import org.junit.Test;
@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
@@ -30,7 +29,6 @@ public class GetOneEventIntegrationTests {
     private MockMvc mvc;
 
     @Test
-    @WithMockUser(roles="ADMIN")
     public void shouldGetEventByID() throws Exception {
         mvc.perform(get("/events/2")
                 .contentType(MediaType.APPLICATION_JSON))
@@ -39,7 +37,6 @@ public class GetOneEventIntegrationTests {
     }
 
     @Test
-    @WithMockUser(roles="ADMIN")
     public void ShouldReturnNotFoundForWrongId() throws Exception {
         Integer eventId = 10;
         mvc.perform(get("/events/" + eventId)
@@ -49,7 +46,6 @@ public class GetOneEventIntegrationTests {
     }
 
     @Test
-    @WithMockUser(roles="ADMIN")
     public void shouldAcceptOnlyNumbers() throws Exception {
         mvc.perform(get("/events/a")
                 .contentType(MediaType.APPLICATION_JSON))

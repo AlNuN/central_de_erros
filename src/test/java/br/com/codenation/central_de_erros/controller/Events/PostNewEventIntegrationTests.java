@@ -1,4 +1,4 @@
-package br.com.codenation.central_de_erros.controller;
+package br.com.codenation.central_de_erros.controller.Events;
 
 import org.hamcrest.Matchers;
 import org.junit.Test;
@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
@@ -30,7 +29,6 @@ public class PostNewEventIntegrationTests {
     private MockMvc mvc;
 
     @Test
-    @WithMockUser(roles="ADMIN")
     public void shouldSaveNew() throws Exception {
         mvc.perform(MockMvcRequestBuilders.post("/events")
                 .with(csrf())
@@ -48,7 +46,6 @@ public class PostNewEventIntegrationTests {
     }
 
     @Test
-    @WithMockUser(roles="ADMIN")
     public void postShouldModifyWithID() throws Exception {
         mvc.perform(MockMvcRequestBuilders.post("/events")
                 .with(csrf())
@@ -68,9 +65,7 @@ public class PostNewEventIntegrationTests {
     }
 
     @Test
-    @WithMockUser(roles="ADMIN")
-    public void postShouldReturnBadRequestWhen() throws Exception {
-        // Missing field notNull (level)
+    public void postShouldReturnBadRequestWhenMissingNotNullFieldLevel() throws Exception {
         mvc.perform(MockMvcRequestBuilders.post("/events")
                 .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
@@ -82,8 +77,10 @@ public class PostNewEventIntegrationTests {
                         "\"log\": \"Aqui tem informação!\"\n" +
                         "}"))
                 .andExpect(status().isBadRequest());
+    }
 
-        // Wrong field name
+    @Test
+    public void postShouldReturnBadRequestWhenUseWrongFieldName() throws Exception {
         mvc.perform(MockMvcRequestBuilders.post("/events")
                 .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
@@ -96,8 +93,10 @@ public class PostNewEventIntegrationTests {
                         "\"log\": \"Aqui tem informação!\"\n" +
                         "}"))
                 .andExpect(status().isBadRequest());
+    }
 
-        // Wrong field value
+    @Test
+    public void postShouldReturnBadRequestWhenUseWrongFieldValue() throws Exception {
         mvc.perform(MockMvcRequestBuilders.post("/events")
                 .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
@@ -113,7 +112,6 @@ public class PostNewEventIntegrationTests {
     }
 
     @Test
-    @WithMockUser(roles="ADMIN")
     public void shouldSumFieldsIfEqual() throws Exception {
         mvc.perform(MockMvcRequestBuilders.post("/events")
                 .with(csrf())
@@ -133,7 +131,6 @@ public class PostNewEventIntegrationTests {
     }
 
     @Test
-    @WithMockUser(roles="ADMIN")
     public void shouldSumFieldIfNumberIs0() throws Exception {
         mvc.perform(MockMvcRequestBuilders.post("/events")
                 .with(csrf())
