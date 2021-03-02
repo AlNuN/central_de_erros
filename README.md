@@ -1,5 +1,6 @@
 # central_de_erros
-Codenation Java acceleration final challenge
+Codenation Java acceleration final challenge.
+
 Project presentation (in portuguese): https://www.youtube.com/watch?v=9pBdSP9gzP0
 
 ## Purpose
